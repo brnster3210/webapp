@@ -334,7 +334,7 @@ resource "google_compute_backend_service" "webapp_backend" {
   name        = "webapp-backend"  # Name of the backend service
   port_name   = "http"
   protocol    = "HTTP"
-  timeout_sec = 10
+  timeout_sec = 60
 
   backend {
     group = google_compute_instance_group_manager.webapp_mig.instance_group
