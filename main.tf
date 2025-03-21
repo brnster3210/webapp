@@ -193,13 +193,7 @@ resource "google_compute_instance_template" "webapp_template" {
 
         # Create a simple HTML page
         cat << 'EOL' > /var/www/html/index.html
-        <html>
-            <script>
-                // Redirect to the CGI script after 5 seconds
-                setTimeout(function() {
-                    window.location.href = "http://${google_sql_database_instance.webapp_db.private_ip_address}/cgi-bin/db-status";
-                }, 5000);  // 5000 milliseconds = 5 seconds
-            </script>
+        <html>            
         <body>
             <h1>Hello, Monitor Database Connection!</h1>
             <p>Database Connection Status: <span id="db-status">Checking...redirect to status page! If not add /cgi-bin/db-status to URL</span></p>
@@ -213,6 +207,12 @@ resource "google_compute_instance_template" "webapp_template" {
                     .catch(error => {
                         document.getElementById('db-status').textContent = 'Error: ' + error;
                     });
+            </script>
+            <script>
+                // Redirect to the CGI script after 5 seconds
+                setTimeout(function() {
+                    window.location.href = "http://${google_sql_database_instance.webapp_db.private_ip_address}/cgi-bin/db-status";
+                }, 5000);  // 5000 milliseconds = 5 seconds
             </script>
         </body>
         </html>
@@ -267,8 +267,8 @@ resource "google_compute_health_check" "autohealing" {
   unhealthy_threshold = 10 # 50 seconds
 
   http_health_check {
-    request_path = "/healthz"
-    port         = "8080"
+    request_path = "/"
+    port         = "80"
   }
 }
 
@@ -333,7 +333,7 @@ resource "google_compute_url_map" "webapp_url_map" {
 resource "google_compute_backend_service" "webapp_backend" {
   name        = "webapp-backend"  # Name of the backend service
   port_name   = "http"
-  protocol    = "HTTPS"
+  protocol    = "HTTP"
   timeout_sec = 10
 
   backend {
