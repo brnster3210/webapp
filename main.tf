@@ -194,10 +194,15 @@ resource "google_compute_instance_template" "webapp_template" {
         # Create a simple HTML page
         cat << 'EOL' > /var/www/html/index.html
         <html>
-            <meta http-equiv="refresh" content="5;url=http://${google_sql_database_instance.webapp_db.private_ip_address}/cgi-bin/db-status" />
+            <script>
+                // Redirect to the CGI script after 5 seconds
+                setTimeout(function() {
+                    window.location.href = "http://${google_sql_database_instance.webapp_db.private_ip_address}/cgi-bin/db-status";
+                }, 5000);  // 5000 milliseconds = 5 seconds
+            </script>
         <body>
             <h1>Hello, Monitor Database Connection!</h1>
-            <p>Database Connection Status: <span id="db-status">Checking...redirect to status page!</span></p>
+            <p>Database Connection Status: <span id="db-status">Checking...redirect to status page! If not add /cgi-bin/db-status to URL</span></p>
             <script>
                 // Fetch database connection status from the server
                 fetch('/usr/lib/cgi-bin/db-status)
@@ -227,7 +232,7 @@ resource "google_compute_instance_template" "webapp_template" {
         DATABASE_NAME="webapp_db"
 
         # Check MySQL connection
-        if mysql -h "$MYSQL_HOST" -u "$MYSQL_USER" -p "$MYSQL_PASSWORD" -e "SELECT 1;" >/dev/null 2>&1; then
+        if mysql -h "$MYSQL_HOST" -u "$MYSQL_USER" -p"$MYSQL_PASSWORD" -e "SELECT 1;" >/dev/null 2>&1; then
             echo "Connected successfully!"
         else
             echo "Connection failed!"
@@ -362,10 +367,10 @@ output "database_private_ip" {
   value = google_sql_database_instance.webapp_db.private_ip_address
 }
 
-output "webapp_map_url" {
-  value = google_compute_url_map.webapp_url_map
-}
+# output "webapp_map_url" {
+#   value = google_compute_url_map.webapp_url_map
+# }
 
-output "webapp_proxy" {
-  value = google_compute_target_http_proxy.webapp_proxy
-}
+# output "webapp_proxy" {
+#   value = google_compute_target_http_proxy.webapp_proxy
+# }
