@@ -195,25 +195,11 @@ resource "google_compute_instance_template" "webapp_template" {
         cat << 'EOL' > /var/www/html/index.html
         <html>            
         <body>
-            <h1>Hello, Monitor Database Connection!</h1>
-            <p>Database Connection Status: <span id="db-status">Checking...redirect to status page! If not add /cgi-bin/db-status to URL</span></p>
-            <script>
-                // Fetch database connection status from the server
-                fetch('/usr/lib/cgi-bin/db-status)
-                    .then(response => response.text())
-                    .then(data => {
-                        document.getElementById('db-status').textContent = data;
-                    })
-                    .catch(error => {
-                        document.getElementById('db-status').textContent = 'Error: ' + error;
-                    });
-            </script>
-            <script>
-                // Redirect to the CGI script after 5 seconds
-                setTimeout(function() {
-                    window.location.href = "http://${google_sql_database_instance.webapp_db.private_ip_address}/cgi-bin/db-status";
-                }, 5000);  // 5000 milliseconds = 5 seconds
-            </script>
+          <h1>Hello, Monitor Database Connection!
+              <meta charset="UTF-8" />
+  			      <meta http-equiv="refresh" content="10; URL=http://mywebapplbtest.com/cgi-bin/db-status" />
+          </h1>
+              <p>Database Connection Status: Checking...redirect to status page! If not add /cgi-bin/db-status to URL or click: <a href="http://mywebapplbtest.com/cgi-bin/db-status"<here</a></p>
         </body>
         </html>
         EOL
@@ -342,6 +328,19 @@ resource "google_compute_backend_service" "webapp_backend" {
 
   health_checks = [google_compute_health_check.autohealing.id]
 
+}
+
+resource "google_compute_managed_ssl_certificate" "webapp_certificate" {
+  name = "webapp-cert"
+  managed {
+    domains = ["mywebapplbtest.com"]
+  }
+}
+
+resource "google_compute_target_https_proxy" "webapp_proxy" {
+  name = "webapp-proxy"
+  url_map = google_compute_url_map.webapp_url_map.self_link
+  ssl_certificates = [google_compute_managed_ssl_certificate.webapp_certificate.self_link]
 }
 
 #*********************************************
