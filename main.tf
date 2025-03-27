@@ -9,7 +9,7 @@
 
     # Configure Google Cloud Provider
     provider "google" {
-      project = "devops-227900"
+      project = "devops-227900" # Place your own project here #
       region  = "us-west1"
 
     }
