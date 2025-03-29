@@ -9,7 +9,7 @@
 
     # Configure Google Cloud Provider
     provider "google" {
-      project = "devops-227900" # Place your own project here #
+      project = "devops-227900" # PLACE YOUR OWN PROJECT NAME HERE
       region  = "us-west1"
 
     }
@@ -343,33 +343,3 @@ resource "google_compute_target_https_proxy" "webapp_proxy" {
   ssl_certificates = [google_compute_managed_ssl_certificate.webapp_certificate.self_link]
 }
 
-#*********************************************
-#                Output Results              *
-#*********************************************
-
-# Output the VPC and subnet details
-output "vpc_name" {
-  value = google_compute_network.main_vpc_network.name
-}
-
-output "subnet_name" {
-  value = google_compute_subnetwork.public_subnet.name
-}
-
-# Output the load balancer IP
-output "load_balancer_ip" {
-  value = google_compute_global_forwarding_rule.webapp_lb.ip_address
-}
-
-# Output the private IP of the Cloud SQL instance
-output "database_private_ip" {
-  value = google_sql_database_instance.webapp_db.private_ip_address
-}
-
-# output "webapp_map_url" {
-#   value = google_compute_url_map.webapp_url_map
-# }
-
-# output "webapp_proxy" {
-#   value = google_compute_target_http_proxy.webapp_proxy
-# }
